@@ -2,19 +2,15 @@
 Протестируйте классы из модуля homework/models.py
 """
 import pytest
-
 from homework.models import Product, Cart
-
 
 @pytest.fixture
 def product():
     return Product("book", 100.0, "This is a book", 1000)
 
-
 @pytest.fixture
 def cart():
     return Cart()
-
 
 class TestProducts:
 
@@ -31,33 +27,24 @@ class TestProducts:
         with pytest.raises(ValueError, match="Недостаточно товара на складе."):
             product.buy(1001)
 
-
 class TestCart:
 
     def test_add_product(self, cart, product):
         cart.add_product(product, 2)
         assert cart.products[product] == 2
-
         cart.add_product(product, 3)
         assert cart.products[product] == 5
 
     def test_remove_product(self, cart, product):
         cart.add_product(product, 5)
-
-        # Удаляем часть продукта из корзины.
-        cart.remove_product(product, 2)
+        cart.remove_product(product, 2)  # Удаляем часть продукта из корзины.
         assert cart.products[product] == 3
-
-        # Удаляем весь продукт из корзины.
-        cart.remove_product(product)
+        cart.remove_product(product)  # Удаляем весь продукт из корзины.
         assert product not in cart.products
 
     def test_remove_exact_quantity(self, cart, product):
-        # Добавляем продукт в корзину.
-        cart.add_product(product, 5)
-
-        # Удаляем столько же товара сколько есть в корзине.
-        cart.remove_product(product, 5)
+        cart.add_product(product, 5)  # Добавляем продукт в корзину.
+        cart.remove_product(product, 5)  # Удаляем столько же товара сколько есть в корзине.
         assert product not in cart.products
 
     def test_remove_product_not_found(self, cart, product):
@@ -77,32 +64,17 @@ class TestCart:
         assert cart.get_total_price() == 500.0
 
     def test_buy(self, cart, product):
-        # Добавляем продукт в корзину.
         original_stock = product.quantity
         assert original_stock >= 2
-
-        # Добавляем продукт в корзину.
-        cart.add_product(product, 2)
-
-        # Покупаем товары из корзины.
-        cart.buy()
-
-        # Проверяем что количество на складе уменьшилось.
-        assert product.quantity == original_stock - 2
-
-        # Корзина должна быть очищена после покупки.
-        assert len(cart.products) == 0
+        cart.add_product(product, 2)  # Добавляем продукт в корзину.
+        cart.buy()  # Покупаем товары из корзины.
+        assert product.quantity == original_stock - 2  # Проверяем что количество на складе уменьшилось.
+        assert len(cart.products) == 0  # Корзина должна быть очищена после покупки.
 
     def test_buy_not_enough_stock(self, cart):
         # Создаем новый продукт с количеством 1
         low_stock_product = Product("low_stock_book", 100.0, "This is a low stock book", 1)
-
-        # Добавляем продукт в корзину и уменьшаем количество на складе до одного экземпляра.
-        low_stock_product.buy(1)
-
-        # Теперь добавим еще один товар в корзину (всего будет два).
-        cart.add_product(low_stock_product)
-
-        with pytest.raises(ValueError,
-                           match="Не удалось завершить покупку: Недостаточно товара на складе."):
+        low_stock_product.buy(1)  # Добавляем продукт в корзину и уменьшаем количество на складе до одного экземпляра.
+        cart.add_product(low_stock_product)  # Добавляем еще один товар в корзину (всего будет два).
+        with pytest.raises(ValueError, match="Не удалось завершить покупку: Недостаточно товара на складе."):
             cart.buy()
