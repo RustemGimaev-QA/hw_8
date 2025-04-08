@@ -52,6 +52,14 @@ class TestCart:
         cart.remove_product(product)
         assert product not in cart.products
 
+    def test_remove_exact_quantity(self, cart, product):
+        # Добавляем продукт в корзину.
+        cart.add_product(product, 5)
+
+        # Удаляем столько же товара сколько есть в корзине.
+        cart.remove_product(product, 5)
+        assert product not in cart.products
+
     def test_remove_product_not_found(self, cart, product):
         with pytest.raises(ValueError, match="Продукт не найден в корзине."):
             cart.remove_product(product)
